@@ -224,3 +224,5 @@ COPY --chmod=0777 delete_s3.py /opt/spark/examples/
 COPY --from=unpacker --chmod=0777 /opt/spark/hivejars /opt/spark/hivejars
 
 RUN python3 -m pip install --no-cache-dir boto3
+
+USER spark
