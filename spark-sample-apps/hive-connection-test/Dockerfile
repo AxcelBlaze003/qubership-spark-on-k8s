@@ -2,8 +2,9 @@ ARG base_img_py=ghcr.io/netcracker/qubership-spark-customized-py:main
 
 FROM maven:3-eclipse-temurin-17-alpine AS unpacker
 ENV MAVEN_REPO=https://repo1.maven.org/maven2
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl=8.12.1-r1
 
+# hadolint ignore=DL3003
 RUN mkdir -p /opt/spark/hivejars && \
     cd /opt/spark/hivejars && \
     curl -k -LO $MAVEN_REPO/org/apache/hive/hive-metastore/3.1.3/hive-metastore-3.1.3.jar  && \
@@ -211,6 +212,7 @@ RUN mkdir -p /opt/spark/hivejars && \
     curl -k -LO $MAVEN_REPO/org/xerial/snappy/snappy-java/1.1.8.2/snappy-java-1.1.8.2.jar && \
     curl -k -LO $MAVEN_REPO/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar
 
+# hadolint ignore=DL3006
 FROM $base_img_py
 
 USER root
@@ -223,6 +225,6 @@ COPY --chmod=0777 delete_s3.py /opt/spark/examples/
 
 COPY --from=unpacker --chmod=0777 /opt/spark/hivejars /opt/spark/hivejars
 
-RUN python3 -m pip install --no-cache-dir boto3
+RUN python3 -m pip install --no-cache-dir boto3==1.39.3
 
 USER spark
