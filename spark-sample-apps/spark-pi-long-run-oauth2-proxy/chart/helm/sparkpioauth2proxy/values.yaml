@@ -5,7 +5,7 @@ app:
     nginx.ingress.kubernetes.io/auth-signin: "http://oauth2-proxy-spark-pi-long-run-99.dashboard.cloud.qubership.com/oauth2/start?rd=$scheme://$best_http_host$request_uri"
     nginx.ingress.kubernetes.io/auth-response-headers: "x-auth-request-user, x-auth-request-email, x-auth-request-access-token"
   image:
-    repository: "ghcr.io/netcracker/qubership-spark-customized"
+    repository: "ghcr.io/axcelblaze003/qubership-spark-customized"
     tag: "main"
   serviceAccount: sparkoperator-spark
 

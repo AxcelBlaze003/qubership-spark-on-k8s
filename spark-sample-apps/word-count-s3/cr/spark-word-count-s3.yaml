@@ -6,7 +6,7 @@ metadata:
 spec:
   type: Java
   mode: cluster
-  image: "ghcr.io/netcracker/qubership-spark-sample-apps-word-count-s3:main"
+  image: "ghcr.io/axcelblaze003/qubership-spark-sample-apps-word-count-s3:main"
   imagePullPolicy: Always
   mainClass: com.qubership.spark.app.WordCountApp
   mainApplicationFile: "local:///opt/spark/examples/word-count-spark-app-1.0-SNAPSHOT.jar"

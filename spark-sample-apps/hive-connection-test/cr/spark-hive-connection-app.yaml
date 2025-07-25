@@ -7,7 +7,7 @@ spec:
   type: Python
   pythonVersion: "3"
   mode: cluster
-  image: "ghcr.io/netcracker/qubership-tests-spark-hive-connection:main"
+  image: "ghcr.io/axcelblaze003/qubership-tests-spark-hive-connection:main"
   imagePullPolicy: Always
   mainApplicationFile: local:///opt/spark/examples/spark_hive_test.py
   sparkVersion: "3.5.5"
@@ -60,7 +60,7 @@ spec:
             - ALL
     initContainers:
     - name: delete-s3
-      image: "ghcr.io/netcracker/qubership-tests-spark-hive-connection:main"
+      image: "ghcr.io/axcelblaze003/qubership-tests-spark-hive-connection:main"
       command: ["python3", "/opt/spark/examples/delete_s3.py"]
       resources:
         requests:

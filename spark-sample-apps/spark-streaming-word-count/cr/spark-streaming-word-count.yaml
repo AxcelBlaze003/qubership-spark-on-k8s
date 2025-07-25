@@ -20,7 +20,7 @@ metadata:
 spec:
   type: Scala
   mode: cluster
-  image: "ghcr.io/netcracker/qubership-spark-sample-apps-spark-streaming-word-count:main"
+  image: "ghcr.io/axcelblaze003/qubership-spark-sample-apps-spark-streaming-word-count:main"
   imagePullPolicy: Always
   mainClass: com.qubership.spark.app.sample.JavaDirectKafkaWordCount
   mainApplicationFile: "local:///opt/spark/examples/spark-streaming-1.0-SNAPSHOT-jar-with-dependencies.jar"

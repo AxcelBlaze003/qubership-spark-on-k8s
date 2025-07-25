@@ -1,4 +1,4 @@
-ARG base_img=ghcr.io/netcracker/qubership-spark-customized:main
+ARG base_img=ghcr.io/axcelblaze003/qubership-spark-customized:main
 
 FROM maven:3-eclipse-temurin-17-alpine AS unpacker
 
@@ -9,7 +9,7 @@ RUN mvn clean install && \
     apk add curl && \
     curl -k -L https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.11.0/jmx_prometheus_javaagent-0.11.0.jar -o jmx_prometheus_javaagent-0.11.0.jar
 
-FROM ghcr.io/netcracker/qubership-spark-customized:main
+FROM ghcr.io/axcelblaze003/qubership-spark-customized:main
 
 ARG spark_uid=185
 USER root

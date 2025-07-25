@@ -117,7 +117,7 @@ statusProvisioner:
     limits:
       memory: "200Mi"
       cpu: "200m"
-  image: ghcr.io/netcracker/qubership-deployment-status-provisioner:0.1.4
+  image: ghcr.io/axcelblaze003/qubership-deployment-status-provisioner:0.1.4
   lifetimeAfterCompletion: 600
   podReadinessTimeout: 300
   integrationTestsTimeout: 2000

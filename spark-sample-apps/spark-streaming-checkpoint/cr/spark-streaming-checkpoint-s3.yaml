@@ -20,7 +20,7 @@ metadata:
 spec:
   type: Scala
   mode: cluster
-  image: ghcr.io/netcracker/qubership-spark-sample-apps-spark-streaming-checkpoint:main
+  image: ghcr.io/axcelblaze003/qubership-spark-sample-apps-spark-streaming-checkpoint:main
   imagePullPolicy: Always
   mainClass: com.qubership.spark.app.sample.JavaRecoverableKafkaWordCount
   mainApplicationFile: "local:///opt/spark/examples/spark-streaming-checkpoint-1.0-SNAPSHOT-jar-with-dependencies.jar"

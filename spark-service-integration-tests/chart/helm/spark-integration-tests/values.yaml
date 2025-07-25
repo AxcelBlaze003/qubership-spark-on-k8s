@@ -5,7 +5,7 @@ serviceAccount:
   create: true
   name: "spark-integration-tests"
 image: 
-    repository: ghcr.io/netcracker/qubership-spark-on-k8s-tests
+    repository: ghcr.io/axcelblaze003/qubership-spark-on-k8s-tests
     tag: main
 
 sparkAppsNamespace: "spark-apps"
@@ -22,8 +22,8 @@ resources:
   limits:
     memory: 256Mi
     cpu: 400m
-sparkAppImage: ghcr.io/netcracker/qubership-spark-customized:main
-sparkPyAppImage: ghcr.io/netcracker/qubership-spark-customized-py:main
+sparkAppImage: ghcr.io/axcelblaze003/qubership-spark-customized:main
+sparkPyAppImage: ghcr.io/axcelblaze003/qubership-spark-customized-py:main
 
 podSecurityContext: {}
 

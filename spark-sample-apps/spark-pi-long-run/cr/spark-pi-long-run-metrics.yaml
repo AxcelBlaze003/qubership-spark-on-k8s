@@ -20,7 +20,7 @@ metadata:
 spec:
   type: Scala
   mode: cluster
-  image: "ghcr.io/netcracker/qubership-spark-sample-apps-spark-pi-long-run:main"
+  image: "ghcr.io/axcelblaze003/qubership-spark-sample-apps-spark-pi-long-run:main"
   imagePullPolicy: Always
   mainClass: com.qubership.spark.app.sample.SparkPi
   mainApplicationFile: "local:///opt/spark/examples/spark-pi-long-execution-1.0-SNAPSHOT.jar"

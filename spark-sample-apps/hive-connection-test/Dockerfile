@@ -1,4 +1,4 @@
-ARG base_img_py=ghcr.io/netcracker/qubership-spark-customized-py:main
+ARG base_img_py=ghcr.io/axcelblaze003/qubership-spark-customized-py:main
 
 FROM maven:3-eclipse-temurin-17-alpine AS unpacker
 ENV MAVEN_REPO=https://repo1.maven.org/maven2
