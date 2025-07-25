@@ -1,8 +1,8 @@
 ARG base_img_py=ghcr.io/axcelblaze003/qubership-spark-customized-py:main
 
-FROM maven:3-eclipse-temurin-17-alpine AS unpacker
+FROM maven:3.9.6-eclipse-temurin-17 AS unpacker
 ENV MAVEN_REPO=https://repo1.maven.org/maven2
-RUN apk add --no-cache curl=8.12.1-r1
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # hadolint ignore=DL3003
 RUN mkdir -p /opt/spark/hivejars && \
