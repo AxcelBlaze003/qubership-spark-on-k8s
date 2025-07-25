@@ -1,0 +1,12 @@
+qubership-spark-customized: ghcr.io/netcracker/qubership-spark-customized:main
+qubership-spark-on-k8s-transfer: ghcr.io/netcracker/qubership-spark-on-k8s-transfer:main
+qubership-spark-on-k8s-tests: ghcr.io/netcracker/qubership-spark-on-k8s-tests:main
+qubership-spark-operator: ghcr.io/netcracker/qubership-spark-operator:main
+qubership-spark-customized-py: ghcr.io/netcracker/qubership-spark-customized-py:main
+qubership-tests-spark-hive-connection: ghcr.io/netcracker/qubership-tests-spark-hive-connection:main
+qubership-tests-spark-pi-long-run: ghcr.io/netcracker/qubership-tests-spark-pi-long-run:main
+qubership-tests-spark-word-count-s3: ghcr.io/netcracker/qubership-tests-spark-word-count-s3:main
+qubership-tests-spark-streaming-word-count: ghcr.io/netcracker/qubership-tests-spark-streaming-word-count:main
+qubership-tests-spark-streaming-checkpoint: ghcr.io/netcracker/qubership-tests-spark-streaming-checkpoint:main
+qubership-deployment-status-provisioner: ghcr.io/netcracker/qubership-deployment-status-provisioner:main
+oauth2_proxy_release-image: quay.io/oauth2-proxy/oauth2-proxy:main

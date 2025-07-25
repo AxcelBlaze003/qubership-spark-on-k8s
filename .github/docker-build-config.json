@@ -1,0 +1,55 @@
+{
+  "components": [
+    {
+      "name": "qubership-spark-customized",
+      "file": "spark-customized/Dockerfile",
+      "context": "spark-customized"
+    },
+    {
+      "name": "qubership-spark-on-k8s-transfer",
+      "file": "docker-transfer/Dockerfile",
+      "context": "."
+    },
+    {
+      "name": "qubership-spark-on-k8s-tests",
+      "file": "spark-service-integration-tests/docker/Dockerfile",
+      "context": "."
+    },
+    {
+      "name": "qubership-spark-operator",
+      "file": "spark-operator-image/Dockerfile",
+      "context": "spark-operator-image"
+    },
+    {
+      "name": "qubership-spark-customized-py",
+      "file": "spark-customized/py/Dockerfile",
+      "context": "spark-customized"
+    },
+    {
+      "name": "qubership-tests-spark-hive-connection",
+      "file": "spark-sample-apps/hive-connection-test/Dockerfile",
+      "context": "spark-sample-apps/hive-connection-test"
+    },
+    {
+      "name": "qubership-tests-spark-pi-long-run",
+      "file": "spark-sample-apps/spark-pi-long-run/Dockerfile",
+      "context": "spark-sample-apps/spark-pi-long-run"
+    },
+    {
+      "name": "qubership-tests-spark-word-count-s3",
+      "file": "spark-sample-apps/word-count-s3/Dockerfile",
+      "context": "spark-sample-apps/word-count-s3"
+    },
+    {
+      "name": "qubership-tests-spark-streaming-word-count",
+      "file": "spark-sample-apps/spark-streaming-word-count/Dockerfile",
+      "context": "spark-sample-apps/spark-streaming-word-count"
+    },
+    {
+      "name": "qubership-tests-spark-streaming-checkpoint",
+      "file": "spark-sample-apps/spark-streaming-checkpoint/Dockerfile",
+      "context": "spark-sample-apps/spark-streaming-checkpoint/"
+    }
+  ],
+  "platforms": "linux/amd64,linux/arm64"
+}

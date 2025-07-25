@@ -1,0 +1,19 @@
+---
+
+charts:
+  - name: qubership-spark-on-k8s
+    chart_file: charts/helm/spark-on-k8s/Chart.yaml
+    values_file: charts/helm/spark-on-k8s/release-images.yaml
+    image:
+      - ghcr.io/netcracker/qubership-spark-customized:${release}
+      - ghcr.io/netcracker/qubership-spark-on-k8s-transfer:${release}
+      - ghcr.io/netcracker/qubership-spark-on-k8s-tests:${release}
+      - ghcr.io/netcracker/qubership-spark-operator:${release}
+      - ghcr.io/netcracker/qubership-spark-customized-py:${release}
+      - ghcr.io/netcracker/qubership-tests-spark-hive-connection:${release}
+      - ghcr.io/netcracker/qubership-tests-spark-pi-long-run:${release}
+      - ghcr.io/netcracker/qubership-tests-spark-word-count-s3:${release}
+      - ghcr.io/netcracker/qubership-tests-spark-streaming-word-count:${release}
+      - ghcr.io/netcracker/qubership-tests-spark-streaming-checkpoint:${release}
+      - ghcr.io/netcracker/qubership-deployment-status-provisioner:${sp_release}
+      - quay.io/oauth2-proxy/oauth2-proxy:${oauth2_proxy_release}

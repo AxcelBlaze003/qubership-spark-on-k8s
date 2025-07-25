@@ -4,8 +4,10 @@ service:
 serviceAccount:
   create: true
   name: "spark-integration-tests"
-image: "ghcr.io/netcracker/qubership-spark-service-integration-tests"
-tags: "test_appORspark_images"
+image: 
+    repository: ghcr.io/netcracker/qubership-spark-on-k8s-tests
+    tag: main
+
 sparkAppsNamespace: "spark-apps"
 status_writing_enabled: "true"
 cr_status_writing:
