@@ -3,53 +3,72 @@
     {
       "name": "qubership-spark-customized",
       "file": "spark-customized/Dockerfile",
-      "context": "spark-customized"
+      "context": "spark-customized",
+      "stage": 1,
+      "platforms": "linux/amd64,linux/arm64"
     },
     {
       "name": "qubership-spark-on-k8s-transfer",
       "file": "docker-transfer/Dockerfile",
-      "context": "."
+      "context": ".",
+      "stage": 1,
+      "platforms": "linux/amd64,linux/arm64"
     },
     {
       "name": "qubership-spark-on-k8s-tests",
       "file": "spark-service-integration-tests/docker/Dockerfile",
-      "context": "."
+      "context": ".",
+      "stage": 1,
+      "platforms": "linux/amd64,linux/arm64"
     },
     {
       "name": "qubership-spark-operator",
       "file": "spark-operator-image/Dockerfile",
-      "context": "spark-operator-image"
+      "context": "spark-operator-image",
+      "stage": 1,
+      "platforms": "linux/amd64,linux/arm64"
     },
     {
       "name": "qubership-spark-customized-py",
       "file": "spark-customized/py/Dockerfile",
-      "context": "spark-customized"
+      "context": "spark-customized",
+      "stage": 2,
+      "platforms": "linux/amd64"
     },
     {
       "name": "qubership-tests-spark-hive-connection",
       "file": "spark-sample-apps/hive-connection-test/Dockerfile",
-      "context": "spark-sample-apps/hive-connection-test"
+      "context": "spark-sample-apps/hive-connection-test",
+      "stage": 3,
+      "platforms": "linux/amd64"
     },
     {
       "name": "qubership-tests-spark-pi-long-run",
       "file": "spark-sample-apps/spark-pi-long-run/Dockerfile",
-      "context": "spark-sample-apps/spark-pi-long-run"
+      "context": "spark-sample-apps/spark-pi-long-run",
+      "stage": 3,
+      "platforms": "linux/amd64"
     },
     {
       "name": "qubership-tests-spark-word-count-s3",
       "file": "spark-sample-apps/word-count-s3/Dockerfile",
-      "context": "spark-sample-apps/word-count-s3"
+      "context": "spark-sample-apps/word-count-s3",
+      "stage": 3,
+      "platforms": "linux/amd64"
     },
     {
       "name": "qubership-tests-spark-streaming-word-count",
       "file": "spark-sample-apps/spark-streaming-word-count/Dockerfile",
-      "context": "spark-sample-apps/spark-streaming-word-count"
+      "context": "spark-sample-apps/spark-streaming-word-count",
+      "stage": 3,
+      "platforms": "linux/amd64"
     },
     {
       "name": "qubership-tests-spark-streaming-checkpoint",
       "file": "spark-sample-apps/spark-streaming-checkpoint/Dockerfile",
-      "context": "spark-sample-apps/spark-streaming-checkpoint/"
+      "context": "spark-sample-apps/spark-streaming-checkpoint/",
+      "stage": 3,
+      "platforms": "linux/amd64"
     }
-  ],
-  "platforms": "linux/amd64"
+  ]
 }
