@@ -2,8 +2,8 @@
 
 charts:
   - name: qubership-spark-on-k8s
-    chart_file: charts/helm/spark-on-k8s/Chart.yaml
-    values_file: charts/helm/spark-on-k8s/release-images.yaml
+    chart_file: chart/helm/spark-on-k8s/Chart.yaml
+    values_file: chart/helm/spark-on-k8s/release-images.yaml
     image:
       - ghcr.io/axcelblaze003/qubership-spark-customized:${release}
       - ghcr.io/axcelblaze003/qubership-spark-on-k8s-transfer:${release}
