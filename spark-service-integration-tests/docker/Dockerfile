@@ -4,7 +4,7 @@ ENV ROBOT_OUTPUT=/opt/robot/output
 
 RUN mkdir -p ${ROBOT_OUTPUT}
 
-
+# copy robot framework files
 COPY spark-service-integration-tests/docker/requirements.txt ${ROBOT_HOME}/requirements.txt
 COPY spark-service-integration-tests/robot ${ROBOT_HOME}
 
