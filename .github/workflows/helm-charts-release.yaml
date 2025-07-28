@@ -40,116 +40,63 @@ jobs:
           check-tag: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   load-docker-build-components:
     runs-on: ubuntu-latest
     outputs:
-      components: ${{ steps.load_component.outputs.components }}
+      component: ${{ steps.load_component.outputs.components }}
+      platforms: ${{ steps.load_component.outputs.platforms }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Load Docker Configuration
         id: load_component
-        run: |
-          CONFIG_FILE="$GITHUB_WORKSPACE/.github/docker-build-config.json"
-
-          verify=$(jq '
-            def verify_structure:
-              .components as $components
-              | ($components | type == "array")
-              and (all($components[];
-                has("name") and
-                has("file") and
-                has("context") and
-                has("stage") and
-                has("platforms")
-              ));
-            verify_structure
-            | if . then true else false end
-          ' "$CONFIG_FILE")
-
-          if [ "$verify" == "true" ]; then
-            echo " $CONFIG_FILE is valid"
-            components=$(jq -c ".components" "$CONFIG_FILE")
+        run:  |
+          verify=$(cat "$GITHUB_WORKSPACE/.github/docker-build-config.json" | jq '
+          def verify_structure:
+          .components as $components
+          | .platforms as $platforms
+          | ($components | type == "array")
+          and (all($components[]; has("name") and has("file") and has("context")))
+          and ($platforms | type == "string");
+          verify_structure
+          | if . then true else false end
+          ')
+          if [ ${verify} == 'true' ]; then
+            echo "✅ $GITHUB_WORKSPACE/.github/docker-build-config.json file is valid"
+            components=$(jq -c ".components" "$GITHUB_WORKSPACE/.github/docker-build-config.json")
+            platforms=$(jq -c ".platforms" "$GITHUB_WORKSPACE/.github/docker-build-config.json")
           else
-            echo " $CONFIG_FILE is invalid"
-            echo " $CONFIG_FILE is invalid" >> "$GITHUB_STEP_SUMMARY"
+            echo "❗ $GITHUB_WORKSPACE/.github/docker-build-config.json file is invalid"
+            echo "❗ $GITHUB_WORKSPACE/.github/docker-build-config.json file is invalid" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-
-          echo "components=${components}" >> "$GITHUB_OUTPUT"
+          echo "components=${components}" >> $GITHUB_OUTPUT
+          echo "platforms=${platforms}" >> $GITHUB_OUTPUT
 
   docker-check-build:
     needs: [load-docker-build-components, check-tag]
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        component: ${{ fromJson(needs.load-docker-build-components.outputs.component) }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Extract and loop through stage 1 components
+      - name: Get version for current component
+        id: get-version
+        run: |
+          echo "IMAGE=${{ matrix.component.name }}" >> $GITHUB_ENV
+      - name: Docker build
+        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        with:
+          ref: ${{ github.ref }}
+          download-artifact: false
+          dry-run: true
+          component: ${{ toJson(matrix.component) }}
+          platforms: ${{ needs.load-docker-build-components.outputs.platforms }}
+          tags: "${{ env.IMAGE_VERSION }}"
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          echo " Stage 1 build started"
-          components=$(echo '${{ needs.load-docker-build-components.outputs.components }}' | jq -c '.[] | select(.stage == 1)')
-          echo "$components" | while read -r component; do
-            name=$(echo "$component" | jq -r .name)
-            platforms=$(echo "$component" | jq -r .platforms)
-            echo " Building $name for stage 1"
-
-            echo "$component" > component.json
-            gh workflow run netcracker/qubership-workflow-hub/actions/docker-action@main \
-              --ref ${{ github.ref }} \
-              --field component="$(cat component.json)" \
-              --field download-artifact=false \
-              --field dry-run=true \
-              --field platforms="$platforms" \
-              --field tags="${{ env.IMAGE_VERSION }}"
-          done
-
-      - name: Extract and loop through stage 2 components
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          echo " Stage 2 build started"
-          components=$(echo '${{ needs.load-docker-build-components.outputs.components }}' | jq -c '.[] | select(.stage == 2)')
-          echo "$components" | while read -r component; do
-            name=$(echo "$component" | jq -r .name)
-            platforms=$(echo "$component" | jq -r .platforms)
-            echo " Building $name for stage 2"
-
-            echo "$component" > component.json
-            gh workflow run netcracker/qubership-workflow-hub/actions/docker-action@main \
-              --ref ${{ github.ref }} \
-              --field component="$(cat component.json)" \
-              --field download-artifact=false \
-              --field dry-run=true \
-              --field platforms="$platforms" \
-              --field tags="${{ env.IMAGE_VERSION }}"
-          done
-
-      - name: Extract and loop through stage 3 components
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          echo " Stage 3 build started"
-          components=$(echo '${{ needs.load-docker-build-components.outputs.components }}' | jq -c '.[] | select(.stage == 3)')
-          echo "$components" | while read -r component; do
-            name=$(echo "$component" | jq -r .name)
-            platforms=$(echo "$component" | jq -r .platforms)
-            echo " Building $name for stage 3"
-
-            echo "$component" > component.json
-            gh workflow run netcracker/qubership-workflow-hub/actions/docker-action@main \
-              --ref ${{ github.ref }} \
-              --field component="$(cat component.json)" \
-              --field download-artifact=false \
-              --field dry-run=true \
-              --field platforms="$platforms" \
-              --field tags="${{ env.IMAGE_VERSION }}"
-          done
-
   chart-release-prepare:
     needs: [check-tag, load-docker-build-components, docker-check-build]
     runs-on: ubuntu-latest
@@ -175,82 +122,27 @@ jobs:
   docker-build:
     needs: [chart-release-prepare, load-docker-build-components]
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        component: ${{ fromJson(needs.load-docker-build-components.outputs.component) }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install jq
-        run: sudo apt-get install -y jq
-
-      - name: Build stage 1 components
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get version for current component
+        id: get-version
         run: |
-          echo "Starting Stage 1 builds"
-          echo '${{ needs.load-docker-build-components.outputs.components }}' | jq -c '.[] | select(.stage == 1)' > stage1.json
-          cat stage1.json | while read -r component; do
-            name=$(echo "$component" | jq -r .name)
-            version=$(echo '${{ needs.chart-release-prepare.outputs.images-versions }}' | jq -r --arg name "$name" '.[$name]')
-            version=${version:-${{ inputs.release }}}
-            platforms=$(echo "$component" | jq -r .platforms)
-            echo " Building $name with version $version for platforms $platforms"
+          echo "IMAGE_VERSION=${{ fromJson(needs.chart-release-prepare.outputs.images-versions)[matrix.component.name] || inputs.release }}" >> $GITHUB_ENV
 
-            echo "$component" > component.json
-            gh workflow run netcracker/qubership-workflow-hub/actions/docker-action@main \
-              --ref release-${{ inputs.release }} \
-              --field component="$(cat component.json)" \
-              --field download-artifact=false \
-              --field dry-run=false \
-              --field platforms="$platforms" \
-              --field tags="$version,latest"
-          done
-
-      - name: Build stage 2 components
+      - name: Docker build
+        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        with:
+          ref: release-${{ inputs.release }}
+          download-artifact: false
+          dry-run: false
+          component: ${{ toJson(matrix.component) }}
+          platforms: ${{ needs.load-docker-build-components.outputs.platforms }}
+          tags: "${{ env.IMAGE_VERSION }},latest"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Starting Stage 2 builds"
-          echo '${{ needs.load-docker-build-components.outputs.components }}' | jq -c '.[] | select(.stage == 2)' > stage2.json
-          cat stage2.json | while read -r component; do
-            name=$(echo "$component" | jq -r .name)
-            version=$(echo '${{ needs.chart-release-prepare.outputs.images-versions }}' | jq -r --arg name "$name" '.[$name]')
-            version=${version:-${{ inputs.release }}}
-            platforms=$(echo "$component" | jq -r .platforms)
-            echo "Building $name with version $version for platforms $platforms"
-
-            echo "$component" > component.json
-            gh workflow run netcracker/qubership-workflow-hub/actions/docker-action@main \
-              --ref release-${{ inputs.release }} \
-              --field component="$(cat component.json)" \
-              --field download-artifact=false \
-              --field dry-run=false \
-              --field platforms="$platforms" \
-              --field tags="$version,latest"
-          done
-
-      - name: Build stage 3 components
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Starting Stage 3 builds"
-          echo '${{ needs.load-docker-build-components.outputs.components }}' | jq -c '.[] | select(.stage == 3)' > stage3.json
-          cat stage3.json | while read -r component; do
-            name=$(echo "$component" | jq -r .name)
-            version=$(echo '${{ needs.chart-release-prepare.outputs.images-versions }}' | jq -r --arg name "$name" '.[$name]')
-            version=${version:-${{ inputs.release }}}
-            platforms=$(echo "$component" | jq -r .platforms)
-            echo "Building $name with version $version for platforms $platforms"
-
-            echo "$component" > component.json
-            gh workflow run netcracker/qubership-workflow-hub/actions/docker-action@main \
-              --ref release-${{ inputs.release }} \
-              --field component="$(cat component.json)" \
-              --field download-artifact=false \
-              --field dry-run=false \
-              --field platforms="$platforms" \
-              --field tags="$version,latest"
-          done
-
+          GITHUB_TOKEN: ${{ github.token }}
   charts-release:
     needs: [docker-build]
     continue-on-error: false
