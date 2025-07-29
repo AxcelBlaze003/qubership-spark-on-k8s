@@ -2,7 +2,7 @@
 set -euo pipefail
 TAG="$1"
 
-TRANSFER_IMAGE=artifactorycn.netcracker.com:17152/netcracker/qubership-spark-on-k8s-transfer:${TAG}
+TRANSFER_IMAGE=ghcr.io/axcelblaze003/qubership-spark-on-k8s-transfer:${TAG}
 
 echo "Pulling image: $TRANSFER_IMAGE"
 docker pull ${TRANSFER_IMAGE}
