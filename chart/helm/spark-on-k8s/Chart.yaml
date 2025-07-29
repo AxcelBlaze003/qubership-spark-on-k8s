@@ -4,7 +4,7 @@ name: qubership-spark-on-k8s
 
 description: A helm extension for Kubeflow spark-operator chart for more convinient running of spark application in k8s
 
-version: 1.0.0
+version: 1.0.2
 
 appVersion: 1.0.0
 
