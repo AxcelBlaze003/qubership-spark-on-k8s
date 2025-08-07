@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 TAG="$1"
-TRANSFER_IMAGE=ghcr.io/netcracker/qubership-spark-on-k8s-transfer:${TAG}
+TRANSFER_IMAGE=ghcr.io/axcelblaze003/qubership-spark-on-k8s-transfer:${TAG}
 echo "Pulling image: $TRANSFER_IMAGE"
 docker pull "${TRANSFER_IMAGE}"
 echo "Creating container from image..."
