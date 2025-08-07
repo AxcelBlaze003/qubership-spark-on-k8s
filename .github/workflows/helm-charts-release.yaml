@@ -150,8 +150,12 @@ jobs:
           download-artifact: false
           dry-run: true
           component: ${{ toJson(matrix.component) }}
-          platforms: ${{ needs.load-docker-build-components.outputs-stage2.platforms }}
+          platforms: ${{ needs.load-docker-build-components-stage2.outputs.platforms }}
           tags: "${{ env.IMAGE_VERSION }}"
+          build-args: >-
+            {
+              "base_img": "ghcr.io/netcracker/qubership-spark-customized:${{ inputs.release }}"
+            }
         env:
           GITHUB_TOKEN: ${{ github.token }}        
   chart-release-prepare:
@@ -197,7 +201,7 @@ jobs:
           download-artifact: false
           dry-run: false
           component: ${{ toJson(matrix.component) }}
-          platforms: ${{ needs.load-docker-build-components.outputs-stage1.platforms }}
+          platforms: ${{ needs.load-docker-build-components-stage1.outputs.platforms }}
           tags: "${{ env.IMAGE_VERSION }},latest"
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -221,7 +225,7 @@ jobs:
           download-artifact: false
           dry-run: false
           component: ${{ toJson(matrix.component) }}
-          platforms: ${{ needs.load-docker-build-components.outputs-stage1.platforms }}
+          platforms: ${{ needs.load-docker-build-components-stage1.outputs.platforms }}
           tags: "${{ env.IMAGE_VERSION }},latest"
           build-args: |
             base_img=ghcr.io/netcracker/qubership-spark-customized:${{ inputs.release }}
