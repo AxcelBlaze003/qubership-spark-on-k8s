@@ -90,67 +90,6 @@ def update_values_yaml(values_path, image_versions):
     with open(values_path, "w") as f:
         yaml.dump(updated, f)
 
-def update_dependency_versions(chart_path):
-    if not os.path.exists(chart_path):
-        print(f"File not found: {chart_path}")
-        return
-
-    with open(chart_path, "r") as f:
-        chart_data = yaml.load(f)
-
-    chart_version = chart_data.get("version")
-    if not chart_version:
-        print("Chart version not found.")
-        return
-
-    updated = False
-    dependencies = chart_data.get("dependencies", [])
-    for dep in dependencies:
-        old_version = dep.get("version")
-        if old_version != chart_version:
-            print(f"Updating dependency '{dep.get('name')}' version: {old_version} → {chart_version}")
-            dep["version"] = chart_version
-            updated = True
-        else:
-            print(f"No update needed for '{dep.get('name')}', already {chart_version}")
-
-    if updated:
-        with open(chart_path, "w") as f:
-            yaml.dump(chart_data, f)
-        print(f"Updated dependency versions in {chart_path}")
-    else:
-        print("No changes made.")
-
-def sync_chart_version_from_values(chart_path, values_path):
-    if not os.path.exists(chart_path):
-        print(f"Chart.yaml not found: {chart_path}")
-        return
-
-    if not os.path.exists(values_path):
-        print(f"Values.yaml not found: {values_path}")
-        return
-
-    with open(values_path, "r") as f:
-        values_data = yaml.load(f)
-
-    try:
-        image_tag = values_data["image"]["tag"]
-    except KeyError:
-        print("image.tag not found in values.yaml")
-        return
-
-    with open(chart_path, "r") as f:
-        chart_data = yaml.load(f)
-
-    old_version = chart_data.get("version")
-    if old_version != image_tag:
-        print(f"Syncing Chart.yaml version: {old_version} → {image_tag}")
-        chart_data["version"] = image_tag
-        with open(chart_path, "w") as f:
-            yaml.dump(chart_data, f)
-    else:
-        print(f"Chart.yaml version already matches image tag: {image_tag}")
-
 def replace_values_yaml(values_file, releases_file, image_key):
     if not os.path.exists(values_file):
         print(f"File not found: {values_file}")
@@ -220,28 +159,19 @@ def replace_values_yaml(values_file, releases_file, image_key):
 
 if __name__ == "__main__":
    
-    # Modes: images, dependencies, chart-version, qubership-spark-operator
+    # Modes: images, qubership-spark-operator
 
-    mode = sys.argv[1] if len(sys.argv) > 1 else "images"
+    mode = sys.argv[1]
 
     if mode == "images":
-        releases_file = sys.argv[2] if len(sys.argv) > 2 else "releases.yaml"
-        values_file = sys.argv[3] if len(sys.argv) > 3 else "values.yaml"
+        releases_file = sys.argv[2]
+        values_file = sys.argv[3]
         image_versions = parse_release_images_yaml(releases_file)
         update_values_yaml(values_file, image_versions)
 
-    elif mode == "dependencies":
-        chart_file = sys.argv[2] if len(sys.argv) > 2 else "Chart.yaml"
-        update_dependency_versions(chart_file)
-
-    elif mode == "chart-version":
-        chart_file = sys.argv[2] if len(sys.argv) > 2 else "Chart.yaml"
-        values_file = sys.argv[3] if len(sys.argv) > 3 else "values.yaml"
-        sync_chart_version_from_values(chart_file, values_file)
-
     elif mode == "qubership-spark-operator":
-        releases_file = sys.argv[2] if len(sys.argv) > 2 else "releases.yaml"
-        values_file = sys.argv[3] if len(sys.argv) > 3 else "values.yaml"
+        releases_file = sys.argv[2]
+        values_file = sys.argv[3]
         image_key = mode  # qubership-spark-operator
         replace_values_yaml(values_file, releases_file, image_key)
 

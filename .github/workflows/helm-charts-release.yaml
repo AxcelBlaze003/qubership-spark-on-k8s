@@ -40,7 +40,7 @@ jobs:
           check-tag: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  load-docker-build-components:
+  load-docker-build-components-stage1:
     runs-on: ubuntu-latest
     outputs:
       component: ${{ steps.load_component.outputs.components }}
@@ -54,8 +54,8 @@ jobs:
         run:  |
           verify=$(cat "$GITHUB_WORKSPACE/.github/docker-build-config.json" | jq '
           def verify_structure:
-          .components as $components
-          | .platforms as $platforms
+          .stage1_components as $components
+          | .stage1_platforms as $platforms
           | ($components | type == "array")
           and (all($components[]; has("name") and has("file") and has("context")))
           and ($platforms | type == "string");
@@ -64,8 +64,8 @@ jobs:
           ')
           if [ ${verify} == 'true' ]; then
             echo "✅ $GITHUB_WORKSPACE/.github/docker-build-config.json file is valid"
-            components=$(jq -c ".components" "$GITHUB_WORKSPACE/.github/docker-build-config.json")
-            platforms=$(jq -c ".platforms" "$GITHUB_WORKSPACE/.github/docker-build-config.json")
+            components=$(jq -c ".stage1_components" "$GITHUB_WORKSPACE/.github/docker-build-config.json")
+            platforms=$(jq -c ".stage1_platforms" "$GITHUB_WORKSPACE/.github/docker-build-config.json")
           else
             echo "❗ $GITHUB_WORKSPACE/.github/docker-build-config.json file is invalid"
             echo "❗ $GITHUB_WORKSPACE/.github/docker-build-config.json file is invalid" >> $GITHUB_STEP_SUMMARY
@@ -74,13 +74,47 @@ jobs:
           echo "components=${components}" >> $GITHUB_OUTPUT
           echo "platforms=${platforms}" >> $GITHUB_OUTPUT
 
-  docker-check-build:
-    needs: [load-docker-build-components, check-tag]
+  load-docker-build-components-stage2:
+    runs-on: ubuntu-latest
+    outputs:
+      component: ${{ steps.load_component.outputs.components }}
+      platforms: ${{ steps.load_component.outputs.platforms }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Load Docker Configuration
+        id: load_component
+        run:  |
+          verify=$(cat "$GITHUB_WORKSPACE/.github/docker-build-config.json" | jq '
+          def verify_structure:
+          .stage2_components as $components
+          | .stage2_platforms as $platforms
+          | ($components | type == "array")
+          and (all($components[]; has("name") and has("file") and has("context")))
+          and ($platforms | type == "string");
+          verify_structure
+          | if . then true else false end
+          ')
+          if [ ${verify} == 'true' ]; then
+            echo "✅ $GITHUB_WORKSPACE/.github/docker-build-config.json file is valid"
+            components=$(jq -c ".stage2_components" "$GITHUB_WORKSPACE/.github/docker-build-config.json")
+            platforms=$(jq -c ".stage2_platforms" "$GITHUB_WORKSPACE/.github/docker-build-config.json")
+          else
+            echo "❗ $GITHUB_WORKSPACE/.github/docker-build-config.json file is invalid"
+            echo "❗ $GITHUB_WORKSPACE/.github/docker-build-config.json file is invalid" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          echo "components=${components}" >> $GITHUB_OUTPUT
+          echo "platforms=${platforms}" >> $GITHUB_OUTPUT
+        
+  docker-check-build-stage1:
+    needs: [load-docker-build-components-stage1, check-tag]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
-        component: ${{ fromJson(needs.load-docker-build-components.outputs.component) }}
+        component: ${{ fromJson(needs.load-docker-build-components-stage1.outputs.component) }}
     steps:
       - name: Get version for current component
         id: get-version
@@ -93,12 +127,35 @@ jobs:
           download-artifact: false
           dry-run: true
           component: ${{ toJson(matrix.component) }}
-          platforms: ${{ needs.load-docker-build-components.outputs.platforms }}
+          platforms: ${{ needs.load-docker-build-components-stage1.outputs.platforms }}
           tags: "${{ env.IMAGE_VERSION }}"
         env:
           GITHUB_TOKEN: ${{ github.token }}
+  docker-check-build-stage2:
+    needs: [load-docker-build-components-stage2, check-tag, docker-check-build-stage1]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        component: ${{ fromJson(needs.load-docker-build-components-stage2.outputs.component) }}
+    steps:
+      - name: Get version for current component
+        id: get-version
+        run: |
+          echo "IMAGE=${{ matrix.component.name }}" >> $GITHUB_ENV
+      - name: Docker build
+        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        with:
+          ref: ${{ github.ref }}
+          download-artifact: false
+          dry-run: true
+          component: ${{ toJson(matrix.component) }}
+          platforms: ${{ needs.load-docker-build-components.outputs-stage2.platforms }}
+          tags: "${{ env.IMAGE_VERSION }}"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}        
   chart-release-prepare:
-    needs: [check-tag, load-docker-build-components, docker-check-build]
+    needs: [check-tag, load-docker-build-components-stage1, load-docker-build-components-stage2, docker-check-build-stage1, docker-check-build-stage2]
     runs-on: ubuntu-latest
     outputs:
       images-versions: ${{ steps.update-versions.outputs.images-versions }}
@@ -112,7 +169,7 @@ jobs:
         uses: netcracker/qubership-workflow-hub/actions/helm-charts-release@v1.0.3
         with:
           release-version: ${{ inputs.release }}
-          chart-version: "1.1.1"
+          chart-version: "1.0.0"
           config-file: .github/helm-charts-release-config.yaml
         env:
           ${{ insert }}: ${{ vars }}
@@ -120,13 +177,13 @@ jobs:
         run: |
           echo "Images versions: ${{ steps.update-versions.outputs.images-versions }}"
 
-  docker-build:
-    needs: [chart-release-prepare, load-docker-build-components]
+  docker-build-stage1:
+    needs: [chart-release-prepare, load-docker-build-components-stage1]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
-        component: ${{ fromJson(needs.load-docker-build-components.outputs.component) }}
+        component: ${{ fromJson(needs.load-docker-build-components-stage1.outputs.component) }}
     steps:
       - name: Get version for current component
         id: get-version
@@ -140,12 +197,36 @@ jobs:
           download-artifact: false
           dry-run: false
           component: ${{ toJson(matrix.component) }}
-          platforms: ${{ needs.load-docker-build-components.outputs.platforms }}
+          platforms: ${{ needs.load-docker-build-components.outputs-stage1.platforms }}
           tags: "${{ env.IMAGE_VERSION }},latest"
         env:
           GITHUB_TOKEN: ${{ github.token }}
+  docker-build-stage2:
+    needs: [chart-release-prepare, load-docker-build-components-stage1, docker-build-stage1]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        component: ${{ fromJson(needs.load-docker-build-components-stage1.outputs.component) }}
+    steps:
+      - name: Get version for current component
+        id: get-version
+        run: |
+          echo "IMAGE_VERSION=${{ fromJson(needs.chart-release-prepare.outputs.images-versions)[matrix.component.name] || inputs.release }}" >> $GITHUB_ENV
+
+      - name: Docker build
+        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        with:
+          ref: release-${{ inputs.release }}
+          download-artifact: false
+          dry-run: false
+          component: ${{ toJson(matrix.component) }}
+          platforms: ${{ needs.load-docker-build-components.outputs-stage1.platforms }}
+          tags: "${{ env.IMAGE_VERSION }},latest"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}        
   charts-release:
-    needs: [docker-build]
+    needs: [docker-build-stage1, docker-build-stage2]
     continue-on-error: false
     runs-on: ubuntu-latest
     steps:
@@ -159,14 +240,14 @@ jobs:
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-      
+
       - name: Make script executable and run
         run: |
-          chmod +x ./.github/create_chart.sh
-          ./.github/create_chart.sh "${{ inputs.release }}"
+          chmod +x ./.github/replace_chart.sh
+          ./.github/replace_chart.sh "${{ inputs.release }}"
 
       - name: Run chart-releaser
-        #continue-on-error: true
+         #continue-on-error: true
         uses: netcracker/chart-releaser-action@main
         with:
           charts_dir: chart/helm
