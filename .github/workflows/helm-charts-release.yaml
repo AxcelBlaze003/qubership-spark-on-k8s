@@ -154,7 +154,7 @@ jobs:
           tags: "${{ env.IMAGE_VERSION }}"
           build-args: >-
             {
-              "base_img": "ghcr.io/netcracker/qubership-spark-customized:${{ inputs.release }}"
+              "base_img": "ghcr.io/netcracker/qubership-spark-customized:1.1.0"
             }
         env:
           GITHUB_TOKEN: ${{ github.token }}        
@@ -206,12 +206,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
   docker-build-stage2:
-    needs: [chart-release-prepare, load-docker-build-components-stage1, docker-build-stage1]
+    needs: [chart-release-prepare, load-docker-build-components-stage2, docker-build-stage1]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
-        component: ${{ fromJson(needs.load-docker-build-components-stage1.outputs.component) }}
+        component: ${{ fromJson(needs.load-docker-build-components-stage2.outputs.component) }}
     steps:
       - name: Get version for current component
         id: get-version
@@ -225,10 +225,10 @@ jobs:
           download-artifact: false
           dry-run: false
           component: ${{ toJson(matrix.component) }}
-          platforms: ${{ needs.load-docker-build-components-stage1.outputs.platforms }}
+          platforms: ${{ needs.load-docker-build-components-stage2.outputs.platforms }}
           tags: "${{ env.IMAGE_VERSION }},latest"
           build-args: |
-            base_img=ghcr.io/axcelblaze003/qubership-spark-customized:1.1.0
+            base_img=ghcr.io/netcracker/qubership-spark-customized:${{ inputs.release }}
         env:
           GITHUB_TOKEN: ${{ github.token }}        
   charts-release:
