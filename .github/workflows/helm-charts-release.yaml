@@ -228,7 +228,7 @@ jobs:
           platforms: ${{ needs.load-docker-build-components-stage1.outputs.platforms }}
           tags: "${{ env.IMAGE_VERSION }},latest"
           build-args: |
-            base_img=ghcr.io/netcracker/qubership-spark-customized:${{ inputs.release }}
+            base_img=ghcr.io/axcelblaze003/qubership-spark-customized:1.1.0
         env:
           GITHUB_TOKEN: ${{ github.token }}        
   charts-release:
