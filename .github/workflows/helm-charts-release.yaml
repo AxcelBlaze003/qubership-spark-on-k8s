@@ -152,8 +152,6 @@ jobs:
           component: ${{ toJson(matrix.component) }}
           platforms: ${{ needs.load-docker-build-components-stage2.outputs.platforms }}
           tags: "${{ env.IMAGE_VERSION }}"
-          build-args: |
-            base_img=ghcr.io/axcelblaze003/qubership-spark-customized:${{ inputs.release }}
         env:
           GITHUB_TOKEN: ${{ github.token }}        
   chart-release-prepare:
