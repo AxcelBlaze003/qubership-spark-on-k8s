@@ -16,10 +16,6 @@ on:
         description: 'OAuth2 Proxy Release version'
         required: true
         type: string
-      build-args:
-        description: 'Build arguments for Docker images'
-        required: false
-        type: string
 permissions:
   contents: write
   packages: write
@@ -148,7 +144,7 @@ jobs:
         run: |
           echo "IMAGE=${{ matrix.component.name }}" >> $GITHUB_ENV
       - name: Docker build
-        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        uses: axcelblaze003/qubership-workflow-hub/actions/docker-action@main
         with:
           ref: ${{ github.ref }}
           download-artifact: false
@@ -156,7 +152,8 @@ jobs:
           component: ${{ toJson(matrix.component) }}
           platforms: ${{ needs.load-docker-build-components-stage2.outputs.platforms }}
           tags: "${{ env.IMAGE_VERSION }}"
-          build-args: base_img=ghcr.io/netcracker/qubership-spark-customized:${{ inputs.release }}
+          build-args: |
+            base_img=ghcr.io/axcelblaze003/qubership-spark-customized:${{ inputs.release }}
         env:
           GITHUB_TOKEN: ${{ github.token }}        
   chart-release-prepare:
@@ -220,7 +217,7 @@ jobs:
           echo "IMAGE_VERSION=${{ fromJson(needs.chart-release-prepare.outputs.images-versions)[matrix.component.name] || inputs.release }}" >> $GITHUB_ENV
 
       - name: Docker build
-        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        uses: axcelblaze003/qubership-workflow-hub/actions/docker-action@main
         with:
           ref: release-${{ inputs.release }}
           download-artifact: false
@@ -229,7 +226,7 @@ jobs:
           platforms: ${{ needs.load-docker-build-components-stage2.outputs.platforms }}
           tags: "${{ env.IMAGE_VERSION }},latest"
           build-args: |
-            base_img=ghcr.io/netcracker/qubership-spark-customized:${{ inputs.release }}
+            base_img=ghcr.io/axcelblaze003/qubership-spark-customized:${{ inputs.release }}
         env:
           GITHUB_TOKEN: ${{ github.token }}        
   charts-release:
