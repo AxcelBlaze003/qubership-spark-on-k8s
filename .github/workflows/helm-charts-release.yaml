@@ -16,6 +16,10 @@ on:
         description: 'OAuth2 Proxy Release version'
         required: true
         type: string
+      build-args:
+        description: 'Build arguments for Docker images'
+        required: false
+        type: string
 permissions:
   contents: write
   packages: write
