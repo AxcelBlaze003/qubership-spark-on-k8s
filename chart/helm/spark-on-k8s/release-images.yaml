@@ -1,7 +1,7 @@
-qubership-spark-customized: ghcr.io/axcelblaze003/qubership-spark-customized:main
-qubership-spark-on-k8s-transfer: ghcr.io/axcelblaze003/qubership-spark-on-k8s-transfer:main
-qubership-spark-on-k8s-tests: ghcr.io/axcelblaze003/qubership-spark-on-k8s-tests:main
-qubership-spark-operator: ghcr.io/axcelblaze003/qubership-spark-operator:main
-qubership-spark-customized-py: ghcr.io/axcelblaze003/qubership-spark-customized-py:main
-qubership-deployment-status-provisioner: ghcr.io/axcelblaze003/qubership-deployment-status-provisioner:main
-oauth2_proxy_release-image: quay.io/oauth2-proxy/oauth2-proxy:main
+qubership-spark-customized: ghcr.io/axcelblaze003/qubership-spark-customized:1.1.5
+qubership-spark-on-k8s-transfer: ghcr.io/axcelblaze003/qubership-spark-on-k8s-transfer:1.1.5
+qubership-spark-on-k8s-tests: ghcr.io/axcelblaze003/qubership-spark-on-k8s-tests:1.1.5
+qubership-spark-operator: ghcr.io/axcelblaze003/qubership-spark-operator:1.1.5
+qubership-spark-customized-py: ghcr.io/axcelblaze003/qubership-spark-customized-py:1.1.5
+qubership-deployment-status-provisioner: ghcr.io/axcelblaze003/qubership-deployment-status-provisioner:0.1.4
+oauth2_proxy_release-image: quay.io/oauth2-proxy/oauth2-proxy:v7.8.1
